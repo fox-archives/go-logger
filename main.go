@@ -3,78 +3,112 @@ package logger
 import (
 	"fmt"
 	"os"
-
-	"github.com/mattn/go-isatty"
 )
 
 func isColor() bool {
-	_, isNoColorEnabled := os.LookupEnv("NO_COLOR")
-	if (os.Getenv("TERM") != "dumb") && !isNoColorEnabled &&
-		isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd()) {
+	_, isNoColor := os.LookupEnv("NO_COLOR")
+	if isNoColor || os.Getenv("TERM") == "dumb" {
+		return false
+	}
+
+	fi, err := os.Stdout.Stat()
+	if fi.Mode()&os.ModeCharDevice != 0 && err == nil {
 		return true
 	}
+
 	return false
 }
 
-// PrintInfo passes params to `fmt.Printf`, colored as blue if it's a supporting tty
-func PrintInfo(text string, args ...interface{}) {
+// Emergency log
+func Emergency(text string, args ...interface{}) {
+	text = fmt.Sprintf(text, args...)
+
 	if isColor() {
-		fmt.Print("\033[1;32m")
-		fmt.Print("INFRM ▶ ")
-		fmt.Print("\033[0;32m")
-		fmt.Printf(text, args...)
-		fmt.Print("\033[m")
-	} else {
-		fmt.Printf(text, args...)
+		fmt.Printf("\033[1;35mEMERG ▶\033[0;35m %s\033[m", text)
+		return
 	}
+
+	fmt.Printf("EMERG ▶ %s", text)
 }
 
-// PrintWarning passes params to `fmt.Printf`, colored as yellow if it's a supporting tty
-func PrintWarning(text string, args ...interface{}) {
+// Alert log
+func Alert(text string, args ...interface{}) {
+	text = fmt.Sprintf(text, args...)
+
 	if isColor() {
-		fmt.Print("\033[1;33m")
-		fmt.Print("WARNG ▶ ")
-		fmt.Print("\033[0;33m")
-		fmt.Printf(text, args...)
-		fmt.Print("\033[m")
-	} else {
-		fmt.Printf(text, args...)
+		fmt.Printf("\033[1;35mALERT ▶\033[0;35m %s\033[m", text)
+		return
 	}
+
+	fmt.Printf("ALERT ▶ %s", text)
 }
 
-// PrintError passes params to `fmt.Printf`, colored as red if it's a supporting tty
-func PrintError(text string, args ...interface{}) {
+// Critical log
+func Critical(text string, args ...interface{}) {
+	text = fmt.Sprintf(text, args...)
+
 	if isColor() {
-		fmt.Print("\033[1;31m")
-		fmt.Print("ERROR ▶ ")
-		fmt.Print("\033[0;31m")
-		fmt.Printf(text, args...)
-		fmt.Print("\033[m")
-	} else {
-		fmt.Printf(text, args...)
+		fmt.Printf("\033[1;31mCRITL ▶\033[0;31m %s\033[m", text)
+		return
 	}
+
+	fmt.Printf("CRITL ▶ %s", text)
 }
 
-// PrintDebug passes params to `fmt.Printf`, colored as blue if it's a supporting tty
-func PrintDebug(text string, args ...interface{}) {
-	isDebug := func() bool {
-		_, ok := os.LookupEnv("DEBUG")
-		if !ok {
-			return false
-		}
-		return true
+// Error log
+func Error(text string, args ...interface{}) {
+	text = fmt.Sprintf(text, args...)
+
+	if isColor() {
+		fmt.Printf("\033[1;31mERROR ▶\033[0;31m %s\033[m", text)
+		return
 	}
 
-	if isDebug() {
-		if isColor() {
-			fmt.Print("\033[1;36m")
-			fmt.Print("DEBUG ▶ ")
-			fmt.Print("\033[0;36m")
-			fmt.Printf(text, args...)
-			fmt.Print("\033[m")
-			return
-		}
+	fmt.Printf("ERROR ▶ %s", text)
+}
 
-		fmt.Printf(text, args...)
+// Warning log
+func Warning(text string, args ...interface{}) {
+	text = fmt.Sprintf(text, args...)
+	if isColor() {
+		fmt.Printf("\033[1;33mWARNG ▶\033[0;33m %s\033[m", text)
+		return
 	}
+
+	fmt.Printf("WARNG ▶ %s", text)
+}
+
+// Notice log
+func Notice(text string, args ...interface{}) {
+	text = fmt.Sprintf(text, args...)
+	if isColor() {
+		fmt.Printf("\033[1;94mNOTCE ▶\033[0;94m %s\033[m", text)
+		return
+	}
+
+	fmt.Printf("NOTCE ▶ %s", text)
+}
+
+// Informational log
+func Informational(text string, args ...interface{}) {
+	text = fmt.Sprintf(text, args...)
+
+	if isColor() {
+		fmt.Printf("\033[1;32mINFRM ▶\033[0;32m %s\033[m", text)
+		return
+	}
+
+	fmt.Printf("INFRM ▶ %s", text)
+}
+
+// Debug log
+func Debug(text string, args ...interface{}) {
+	text = fmt.Sprintf(text, args...)
+
+	if isColor() {
+		fmt.Printf("\033[1;36mDEBUG ▶ \033[0;36m%s\033[m", text)
+		return
+	}
+
+	fmt.Printf("DEBUG ▶ %s", text)
 }
