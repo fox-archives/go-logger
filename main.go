@@ -103,6 +103,11 @@ func Informational(text string, args ...interface{}) {
 
 // Debug log
 func Debug(text string, args ...interface{}) {
+	_, isDebug := os.LookupEnv("DEBUG")
+	if !isDebug {
+		return
+	}
+
 	text = fmt.Sprintf(text, args...)
 
 	if isColor() {
