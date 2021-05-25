@@ -1,0 +1,9 @@
+image: golang
+tasks:
+  build:
+    input_paths:
+      - main_test.go
+      - main.go
+      - go.mod
+      - go.sum
+    command: go test
